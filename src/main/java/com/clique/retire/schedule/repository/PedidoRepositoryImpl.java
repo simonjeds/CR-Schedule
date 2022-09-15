@@ -1,5 +1,7 @@
 package com.clique.retire.schedule.repository;
 
+import static com.clique.retire.schedule.util.Constantes.NUMERO_PEDIDO;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -117,7 +119,7 @@ public class PedidoRepositoryImpl implements PedidoRepositoryCustom {
     StringBuilder sql = new StringBuilder()
       .append("SELECT DISTINCT p.pedi_nr_pedido AS numero_pedido, p.polo_cd_polo AS codigo_filial ")
       .append("FROM pedido p (NOLOCK) ")
-      .append("WHERE p.pedi_fl_fase IN (:aguardandoExpedicao, :entregue) ")
+      .append("WHERE p.pedi_fl_fase IN (:aguardandoExpedicao, :expedido, :entregue) ")
       .append("  AND p.pedi_fl_operacao_loja = 'S' ")
       .append("  AND EXISTS ( ")
       .append("    SELECT 1 FROM receita_produto_controlado rpc (NOLOCK) ")
@@ -125,15 +127,16 @@ public class PedidoRepositoryImpl implements PedidoRepositoryCustom {
       .append("    WHERE ip.pedi_nr_pedido = p.pedi_nr_pedido AND rpc.rcpc_fl_etiquetaemitida = 'N' ")
       .append("  ) ");
 
-    List<Tuple> result = (List<Tuple>) this.em.createNativeQuery(sql.toString(), Tuple.class)
+    List<Tuple> result = this.em.createNativeQuery(sql.toString(), Tuple.class)
       .setParameter("aguardandoExpedicao", FasePedidoEnum.AGUARDANDO_EXPEDICAO.getChave())
+      .setParameter("expedido", FasePedidoEnum.EXPEDIDO.getChave())
       .setParameter("entregue", FasePedidoEnum.ENTREGUE.getChave())
       .getResultList();
 
     return result.stream()
       .map(
         tupla -> PedidoDTO.builder()
-          .numeroPedido(tupla.get("numero_pedido", Integer.class))
+          .numeroPedido(tupla.get(NUMERO_PEDIDO, Integer.class))
           .codigoFilial(tupla.get("codigo_filial", Integer.class))
           .build()
       ).collect(Collectors.toList());

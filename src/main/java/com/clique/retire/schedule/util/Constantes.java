@@ -12,5 +12,10 @@ public class Constantes {
 
 	public static final String FILA_ENTREGA_REAGENDADA = "ENTREGA 4.0 - Entrega reagendada";
 	public static final String DESCRICAO_RESOLUCAO_PENDENCIA = "Resolvido via Clique Retire Schedule";
+	
+	/**
+	 * Repository
+	 */
+	public static final String NUMERO_PEDIDO = "numero_pedido";
 
 }
